@@ -1086,7 +1086,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.weather_api_version = WEATHER_API_VERSION;
 #if ENABLE_WEATHER_KEY_MANAGE
 	g_settings.weather_api_key = configfile.getString("weather_api_key", g_settings.weather_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : g_settings.weather_api_key);
-	g_settings.weather_api_version = configfile.getString("weather_api_version", g_settings.weather_api_version.empty() ? "2.5" : g_settings.weather_api_version);
+	g_settings.weather_api_version = configfile.getString("weather_api_version", g_settings.weather_api_version.empty() ? "3.0" : g_settings.weather_api_version);
 #endif
 	g_settings.weather_enabled = configfile.getInt32("weather_enabled", 1);
 	g_settings.weather_enabled = g_settings.weather_enabled && CApiKey::check_weather_api_key();
