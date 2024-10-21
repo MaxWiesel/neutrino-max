@@ -1449,6 +1449,7 @@ menu.hint_infobar_sat Show current satellite or cable provider
 menu.hint_infobar_setup Configure infobar options
 menu.hint_infobar_textcolor Change infobar text color
 menu.hint_infobar_tuner Show active tuner number icon
+menu.hint_infobar_weather Shows current weather data
 menu.hint_infoclock_setup Configure info clock GUI options
 menu.hint_keep_numbers Keep channel numbers over next scans\nand bouquets editing
 menu.hint_key_addrecord Assign button to add record timer\nfrom event list
@@ -1970,6 +1971,7 @@ miscsettings.infobar_show_res Show resolution on infobar
 miscsettings.infobar_show_res_simple simple
 miscsettings.infobar_show_sysfs_hdd Fill level (SysFS and HDD)
 miscsettings.infobar_show_tuner Display active tuner
+miscsettings.infobar_weather Weather
 miscsettings.infoclock Clock
 miscsettings.onlineservices Online services
 miscsettings.progressbar Progressbar
