@@ -1,7 +1,7 @@
 if ENABLE_UPNP
-AM_CPPFLAGS = -fno-rtti -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
+AM_CPPFLAGS = -fno-rtti -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -D_FILE_OFFSET_BITS=64
 else
-AM_CPPFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
+AM_CPPFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -D_FILE_OFFSET_BITS=64
 endif
 
 SUBDIRS = bedit components moviebrowser moviedb widget
