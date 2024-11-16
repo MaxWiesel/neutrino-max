@@ -184,10 +184,9 @@ t_channel_id standby_channel_id = 0;
 
 //NEW
 static pthread_t timer_thread;
-void * timerd_main_thread(void *data);
 static bool timerd_thread_started = false;
-
-void * nhttpd_main_thread(void *data);
+extern void *timerd_main_thread(void *data);
+extern void *nhttpd_main_thread(void *data);
 
 //#define DISABLE_SECTIONSD
 
@@ -2998,9 +2997,11 @@ TIMER_START();
 	InitSectiondClient();
 
 	/* wait until timerd is ready... */
-	time_t timerd_wait = time_monotonic_ms();
-	while (!timer_wakeup)
+	int64_t timerd_wait = time_monotonic_ms();
+	while (timerd_signal >= 0) {
 		usleep(100);
+	}
+
 	dprintf(DEBUG_NORMAL, "had to wait %" PRId64 " ms for timerd start...\n", time_monotonic_ms() - timerd_wait);
 	timer_wakeup = timer_wakup_real;
 	InitTimerdClient();

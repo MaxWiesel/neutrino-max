@@ -259,7 +259,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 				break;
 			}
 
-		case CTimerdMsg::CMD_ADDTIMER:						// neuen timer hinzufügen
+		case CTimerdMsg::CMD_ADDTIMER:						// neuen timer hinzufuegen
 			CTimerdMsg::commandAddTimer msgAddTimer;
 			CBasicServer::receive_data(connfd,&msgAddTimer, sizeof(msgAddTimer));
 
@@ -436,7 +436,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 			CTimerManager::getInstance()->stopEvent(msgStopTimer.eventID);
 			break;
 
-		case CTimerdMsg::CMD_TIMERDAVAILABLE:					// testen ob server läuft ;)
+		case CTimerdMsg::CMD_TIMERDAVAILABLE:					// testen ob server laeuft ;)
 			{
 				CTimerdMsg::responseAvailable rspAvailable;
 				rspAvailable.available = true;
@@ -479,7 +479,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 	return true;
 }
 
-int timerd_main_thread(void *data)
+void *timerd_main_thread(void *data)
 {
 	set_threadname(__func__);
 	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, 0);
@@ -490,7 +490,8 @@ int timerd_main_thread(void *data)
 
 	if (!timerd_server.prepare(TIMERD_UDS_NAME)) {
 		*(long *)data = -2; /* signal neutrino that waiting is pointless */
-		return -1;
+		fprintf(stderr, "Error: Failed to prepare timerd server with UDS name: %s\n", TIMERD_UDS_NAME);
+		return (void*)EXIT_FAILURE;   // return as a `void*`-pointer
 	}
 
 	// Start timer thread
@@ -501,5 +502,5 @@ int timerd_main_thread(void *data)
 
 	timerd_server.run(timerd_parse_command, CTimerdMsg::ACTVERSION);
 	printf("timerd shutdown complete\n");
-	return 0;
+	return NULL;
 }
