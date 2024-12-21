@@ -54,8 +54,11 @@ class CStreamInstance : public OpenThreads::Thread
 		t_channel_id channel_id;
 		stream_pids_t pids;
 		stream_fds_t fds;
-
-		virtual bool Send(ssize_t r, const unsigned char *_buf = NULL);
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(61, 1, 100)
+		virtual bool Send(ssize_t r, const unsigned char * _buf = NULL);
+#else
+		virtual bool Send(ssize_t r,  unsigned char * _buf = NULL);
+#endif
 		virtual void Close();
 		virtual void run();
 		friend class CStreamManager;
@@ -94,8 +97,8 @@ class CStreamStream : public CStreamInstance
 		bool Start();
 		bool Stop();
 
-		static int Interrupt(void *data);
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 0, 0)
+		static int Interrupt(void * data);
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(61, 1, 100)
 		static int write_packet(void *opaque, const uint8_t *buffer, int buf_size);
 #else
 		static int write_packet(void *opaque, uint8_t *buffer, int buf_size);

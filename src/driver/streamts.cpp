@@ -110,9 +110,13 @@ bool CStreamInstance::Stop()
 	return (OpenThreads::Thread::join() == 0);
 }
 
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(61, 1, 100)
 bool CStreamInstance::Send(ssize_t r, const unsigned char *_buf)
+#else
+bool CStreamInstance::Send(ssize_t r,  unsigned char * _buf)
+#endif
 {
-	//OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	// OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	stream_fds_t cfds;
 	mutex.lock();
 	cfds = fds;
@@ -799,7 +803,7 @@ CStreamStream::~CStreamStream()
 	Close();
 }
 
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 0, 0)
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(61, 1, 100)
 int CStreamStream::write_packet(void *opaque, const uint8_t *buffer, int buf_size)
 #else
 int CStreamStream::write_packet(void *opaque, uint8_t *buffer, int buf_size)
@@ -942,7 +946,6 @@ bool CStreamStream::Open()
 	av_log_set_level(AV_LOG_VERBOSE);
 	av_dump_format(ofcx, 0, ofcx->url, 1);
 	av_log_set_level(AV_LOG_WARNING);
-
 	const AVBitStreamFilter *bsf = av_bsf_get_by_name("h264_mp4toannexb");
 	if(!bsf) {
 		return false;
