@@ -202,7 +202,7 @@ void CFfmpegDec::DeInit(void)
 	{
 #if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 83, 100)
 		avcodec_close(c);
-		avcodec_free_context(&c);
+		av_free(c);
 #else
 		avcodec_free_context(&c);
 		c = NULL;
@@ -255,7 +255,7 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 		mutex.lock();
 #if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 83, 100)
 		avcodec_close(c);
-		avcodec_free_context(&c);
+		av_free(c);
 #else
 		avcodec_free_context(&c);
 #endif
