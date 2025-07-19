@@ -370,6 +370,7 @@ const char * locale_real_names[] =
 	"ci.init_failed",
 	"ci.init_ok",
 	"ci.inserted",
+	"ci.op",
 	"ci.removed",
 	"ci.reset",
 	"ci.reset_standby",
