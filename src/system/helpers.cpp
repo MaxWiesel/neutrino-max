@@ -65,16 +65,6 @@ using namespace std;
 #include <curl/types.h>
 #endif
 
-<<<<<<< HEAD
-=======
-//NI
-#include <global.h> // to get g_settings
-
-#include <vector>
-#include <fstream>
-#include <libmd5sum.h>
-#define MD5_DIGEST_LENGTH 16
->>>>>>> e157348fd8 (- helpers: formatting code using astyle)
 #include <gui/widget/hintbox.h>
 
 const char *neutrinoMode_to_string(int mode)
@@ -203,10 +193,6 @@ int my_system(const char *cmd)
 
 int my_system(int argc, const char *arg, ...)
 {
-<<<<<<< HEAD
-=======
-	static bool background = false; //NI
->>>>>>> e157348fd8 (- helpers: formatting code using astyle)
 	int i = 0, ret, childExit = 0;
 #define ARGV_MAX 64
 	// static right now but could be made dynamic if necessary
@@ -225,31 +211,12 @@ int my_system(int argc, const char *arg, ...)
 			return -1;
 		}
 		argv[i] = va_arg(args, const char *);
-<<<<<<< HEAD
-=======
-
-		//NI
-		if (argv[i] != NULL && strstr(argv[i], "&") != 0)
-		{
-			background = true;
-			printf("%s: start processes as background job\n", __func__);
-			argv[i] = NULL;
-		}
-
->>>>>>> e157348fd8 (- helpers: formatting code using astyle)
 	}
 	argv[i] = NULL; // sentinel
 	//fprintf(stderr,"%s:", __func__);for(i=0;argv[i];i++)fprintf(stderr," '%s'",argv[i]);fprintf(stderr,"\n");
 
 	pid_t pid;
-<<<<<<< HEAD
-	int maxfd = getdtablesize();// sysconf(_SC_OPEN_MAX);
-=======
 	int maxfd = getdtablesize(); // sysconf(_SC_OPEN_MAX);
-	//NI
-	if (background)
-		signal(SIGCHLD, SIG_IGN);
->>>>>>> e157348fd8 (- helpers: formatting code using astyle)
 	switch (pid = vfork())
 	{
 		case -1: // can't vfork
@@ -258,16 +225,7 @@ int my_system(int argc, const char *arg, ...)
 			break;
 		case 0: // child process
 			ret = 0;
-<<<<<<< HEAD
-			for(i = 3; i < maxfd; i++)
-=======
-
-			//NI
-			if (background)
-				signal(SIGCHLD, SIG_DFL);
-
 			for (i = 3; i < maxfd; i++)
->>>>>>> e157348fd8 (- helpers: formatting code using astyle)
 				close(i);
 			if (setsid() == -1)
 				perror("my_system setsid");
@@ -289,98 +247,7 @@ int my_system(int argc, const char *arg, ...)
 	return ret;
 }
 
-<<<<<<< HEAD
-FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type)
-=======
-#if 0
-//NI version
-int ni_system(std::string cmd, bool noshell, bool background)
-{
-	//with noshell, no special characters allowed!!!
-
-	int maxfd = getdtablesize();// sysconf(_SC_OPEN_MAX);
-	int fd;
-
-	for (fd = 3; fd < maxfd; fd++)
-		fcntl(fd, F_SETFD, FD_CLOEXEC);
-
-#define NI_SYSTEM_VFORK
-#ifdef NI_SYSTEM_VFORK
-
-	int ret = 0, childExit = 0;
-	pid_t pid;
-
-	std::vector<std::string> token;
-	std::vector<char *> args;
-	std::string str;
-	std::stringstream ss(cmd);
-
-	if (noshell)
-	{
-		while (ss >> str)
-		{
-			token.push_back(str);
-		}
-
-		//maybe std::transform is the better way?
-		for (std::vector<std::string>::iterator it = token.begin(); it != token.end(); ++it)
-		{
-			args.push_back((char *)it->c_str());
-		}
-		args.push_back(NULL);
-	}
-
-	if (background)
-		signal(SIGCHLD, SIG_IGN);
-
-	switch (pid = vfork())
-	{
-		case -1: /* can't vfork */
-			fprintf(stderr, "[ni_system] vfork\n");
-			return -1;
-		case 0: /* child process */
-			if (noshell)
-			{
-				/*printf("[ni_system] forked, execvp");
-				for (std::vector<char *>::iterator it = args.begin(); it != args.end(); ++it) {
-					printf(" %s",*it);
-				}
-				printf("\n");*/
-
-				ret = execvp(args[0], &args[0]);
-			}
-			else
-			{
-				//printf("[ni_system] forked, execlp \"%s\"\n", cmd.c_str());
-
-				ret = execlp("sh", "sh", "-c", cmd.c_str(), (char *)NULL);
-			}
-
-			if (ret)
-				fprintf(stderr, "[ni_system] exec return code: %d (%m)\n", ret);
-
-			_exit(ret); // terminate c h i l d proces s only
-		default: /* parent returns to calling process */
-			break;
-	}
-	if (background)
-		return (0);
-
-	//fprintf(stderr, "[ni_system] parent, waiting for child with pid %d...\n",pid);
-	waitpid(pid, &childExit, 0);
-	//fprintf(stderr, "[ni_system] parent, waitpid(pid %d) returned\n",pid);
-	/*if (WIFEXITED(childExit))
-		fprintf(stderr, "[ni_system] child returned with status %d\n",WEXITSTATUS(childExit));*/
-	return (childExit);
-#else
-	//printf("[ni_system] execute pure system()\n");
-	return system(cmd.c_str());
-#endif
-}
-#endif
-
 FILE *my_popen(pid_t &pid, const char *cmdstring, const char *type)
->>>>>>> e157348fd8 (- helpers: formatting code using astyle)
 {
 	int pfd[2] = {-1, -1};
 	FILE *fp = NULL;
@@ -1199,7 +1066,6 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t forceMode/*
 	uint32_t block;
 	off64_t fsizeSrc64 = lseek64(fd1, 0, SEEK_END);
 	lseek64(fd1, 0, SEEK_SET);
-<<<<<<< HEAD
 	off64_t fsize64 = fsizeSrc64;
 	uint32_t FileBufSize = (fsizeSrc64 < (off_t)FileBufMaxSize) ? (uint32_t)fsizeSrc64 : FileBufMaxSize;
 	FileBuf = initFileBuf(FileBuf, FileBufSize);
@@ -1217,77 +1083,6 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t forceMode/*
 	if (fsizeSrc64 != fsizeDst64) {
 		close(fd1);
 		close(fd2);
-=======
-	if (fsizeSrc64 > 0x7FFFFFF0) // >2GB
-	{
-		uint32_t FileBufSize = FileBufMaxSize;
-		FileBuf = initFileBuf(FileBuf, FileBufSize);
-		off64_t fsize64 = fsizeSrc64;
-		block = FileBufSize;
-		//printf("#####[%s] fsizeSrc64: %lld 0x%010llX - large file\n", __FUNCTION__, fsizeSrc64, fsizeSrc64);
-		while (fsize64 > 0)
-		{
-			if (fsize64 < (off64_t)FileBufSize)
-				block = (uint32_t)fsize64;
-			read(fd1, FileBuf, block);
-			write(fd2, FileBuf, block);
-			fsize64 -= block;
-			if (!doCopyFlag)
-				break;
-		}
-		if (doCopyFlag)
-		{
-			lseek64(fd2, 0, SEEK_SET);
-			off64_t fsizeDst64 = lseek64(fd2, 0, SEEK_END);
-			if (fsizeSrc64 != fsizeDst64)
-			{
-				close(fd1);
-				close(fd2);
-				FileBuf = deleteFileBuf(FileBuf);
-				return false;
-			}
-		}
-	}
-	else // <2GB
-	{
-		off_t fsizeSrc = lseek(fd1, 0, SEEK_END);
-		uint32_t FileBufSize = (fsizeSrc < (off_t)FileBufMaxSize) ? fsizeSrc : FileBufMaxSize;
-		FileBuf = initFileBuf(FileBuf, FileBufSize);
-		lseek(fd1, 0, SEEK_SET);
-		off_t fsize = fsizeSrc;
-		block = FileBufSize;
-		//printf("#####[%s] fsizeSrc: %ld 0x%08lX - normal file\n", __FUNCTION__, fsizeSrc, fsizeSrc);
-		while (fsize > 0)
-		{
-			if (fsize < (off_t)FileBufSize)
-				block = (uint32_t)fsize;
-			read(fd1, FileBuf, block);
-			write(fd2, FileBuf, block);
-			fsize -= block;
-			if (!doCopyFlag)
-				break;
-		}
-		if (doCopyFlag)
-		{
-			lseek(fd2, 0, SEEK_SET);
-			off_t fsizeDst = lseek(fd2, 0, SEEK_END);
-			if (fsizeSrc != fsizeDst)
-			{
-				close(fd1);
-				close(fd2);
-				FileBuf = deleteFileBuf(FileBuf);
-				return false;
-			}
-		}
-	}
-	close(fd1);
-	close(fd2);
-
-	if (!doCopyFlag)
-	{
-		sync();
-		unlink(Dst);
->>>>>>> e157348fd8 (- helpers: formatting code using astyle)
 		FileBuf = deleteFileBuf(FileBuf);
 		return false;
 	}
@@ -2104,17 +1899,10 @@ size_t WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
 
 size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data)
 {
-<<<<<<< HEAD
-        std::string* pStr = (std::string*) data;
-        pStr->append((char*) ptr, nmemb);
-
-        return size*nmemb;
-=======
 	std::string *pStr = (std::string *) data;
 	pStr->append((char *) ptr, nmemb);
 
 	return size * nmemb;
->>>>>>> e157348fd8 (- helpers: formatting code using astyle)
 }
 
 bool getUrl(std::string &url, std::string &answer, std::string userAgent, unsigned int timeout)
@@ -2132,12 +1920,8 @@ bool getUrl(std::string &url, std::string &answer, std::string userAgent, unsign
 	curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, false);
 	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, userAgent.c_str());
 
-<<<<<<< HEAD
-	if (!g_settings.softupdate_proxyserver.empty()) {
-=======
 	if (!g_settings.softupdate_proxyserver.empty())
 	{
->>>>>>> e157348fd8 (- helpers: formatting code using astyle)
 		curl_easy_setopt(curl_handle, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
 		if (!g_settings.softupdate_proxyusername.empty())
 		{
@@ -2168,11 +1952,7 @@ bool downloadUrl(std::string url, std::string file, std::string userAgent, unsig
 
 	CURL *curl_handle = curl_easy_init();
 
-<<<<<<< HEAD
-	FILE * fp = fopen(file.c_str(), "wb");
-=======
 	FILE *fp = fopen(file.c_str(), "wb");
->>>>>>> e157348fd8 (- helpers: formatting code using astyle)
 	if (fp == NULL)
 	{
 		perror(file.c_str());
