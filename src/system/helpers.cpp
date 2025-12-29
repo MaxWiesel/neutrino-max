@@ -31,14 +31,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <pty.h>	/* forkpty*/
+#include <pty.h> // forkpty
 #include <sys/ioctl.h>
 #include <inttypes.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <sys/vfs.h>    /* or <sys/statfs.h> */
-#include <sys/time.h>	/* gettimeofday */
+#include <sys/vfs.h> // or <sys/statfs.h>
+#include <sys/time.h> // gettimeofday
 #include <string.h>
 #include <fcntl.h>
 #include <dirent.h>
@@ -65,9 +65,19 @@ using namespace std;
 #include <curl/types.h>
 #endif
 
+<<<<<<< HEAD
+=======
+//NI
+#include <global.h> // to get g_settings
+
+#include <vector>
+#include <fstream>
+#include <libmd5sum.h>
+#define MD5_DIGEST_LENGTH 16
+>>>>>>> e157348fd8 (- helpers: formatting code using astyle)
 #include <gui/widget/hintbox.h>
 
-const char* neutrinoMode_to_string(int mode)
+const char *neutrinoMode_to_string(int mode)
 {
 	std::stringstream s;
 
@@ -107,39 +117,32 @@ const char* neutrinoMode_to_string(int mode)
 	}
 }
 
-int mySleep(int sec) {
+int mySleep(int sec)
+{
 	struct timeval timeout;
 
 	timeout.tv_sec = sec;
 	timeout.tv_usec = 0;
-	return select(0,0,0,0, &timeout);
+	return select(0, 0, 0, 0, &timeout);
 }
 
 off_t file_size(const char *filename)
 {
 	struct stat stat_buf;
-	if(::stat(filename, &stat_buf) == 0)
-	{
+	if (::stat(filename, &stat_buf) == 0)
 		return stat_buf.st_size;
-	} else
-	{
-		return 0;
-	}
+	return 0;
 }
 
 bool file_exists(const char *filename)
 {
 	struct stat stat_buf;
-	if(::stat(filename, &stat_buf) == 0)
-	{
+	if (::stat(filename, &stat_buf) == 0)
 		return true;
-	} else
-	{
-		return false;
-	}
+	return false;
 }
 
-void  wakeup_hdd(const char *hdd_dir, bool msg)
+void wakeup_hdd(const char *hdd_dir, bool msg)
 {
 	//NI
 	CHintBox loadBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_HDD_WAKEUP_START));
@@ -153,22 +156,27 @@ void  wakeup_hdd(const char *hdd_dir, bool msg)
 	if (!wakeup_sh.empty())
 		my_system(2, wakeup_sh.c_str(), hdd_dir);
 
-	if (!g_settings.hdd_wakeup) {
+	if (!g_settings.hdd_wakeup)
+	{
 		printf("[hdd] internal wakeup disabled\n");
 		if (msg)
 			loadBox.hide();
 		return;
 	}
 
-	if(!check_dir(hdd_dir) && hdd_get_standby(hdd_dir)){
+	if (!check_dir(hdd_dir) && hdd_get_standby(hdd_dir))
+	{
 		std::string wakeup_file = hdd_dir;
 		wakeup_file += "/.wakeup";
 		int fd = open(wakeup_file.c_str(), O_SYNC | O_WRONLY | O_CREAT | O_TRUNC, S_IWUSR);
-		if (fd >= 0) {
+		if (fd >= 0)
+		{
 			unsigned char buf[512];
 			memset(buf, 0xFF, sizeof(buf));
-			for (int i = 0; i < 20; i++) {
-				if (write(fd, buf, sizeof(buf)) < 0) {
+			for (int i = 0; i < 20; i++)
+			{
+				if (write(fd, buf, sizeof(buf)) < 0)
+				{
 					perror("write to .wakeup");
 					break;
 				}
@@ -184,8 +192,8 @@ void  wakeup_hdd(const char *hdd_dir, bool msg)
 		loadBox.hide();
 }
 
-//use for script with full path
-int my_system(const char * cmd)
+// use for script with full path
+int my_system(const char *cmd)
 {
 	if (!file_exists(cmd))
 		return -1;
@@ -195,16 +203,20 @@ int my_system(const char * cmd)
 
 int my_system(int argc, const char *arg, ...)
 {
+<<<<<<< HEAD
+=======
+	static bool background = false; //NI
+>>>>>>> e157348fd8 (- helpers: formatting code using astyle)
 	int i = 0, ret, childExit = 0;
 #define ARGV_MAX 64
-	/* static right now but could be made dynamic if necessary */
+	// static right now but could be made dynamic if necessary
 	int argv_max = ARGV_MAX;
 	const char *argv[ARGV_MAX];
 	va_list args;
 	argv[0] = arg;
 	va_start(args, arg);
 
-	while(++i < argc)
+	while (++i < argc)
 	{
 		if (i == argv_max)
 		{
@@ -213,32 +225,60 @@ int my_system(int argc, const char *arg, ...)
 			return -1;
 		}
 		argv[i] = va_arg(args, const char *);
+<<<<<<< HEAD
+=======
+
+		//NI
+		if (argv[i] != NULL && strstr(argv[i], "&") != 0)
+		{
+			background = true;
+			printf("%s: start processes as background job\n", __func__);
+			argv[i] = NULL;
+		}
+
+>>>>>>> e157348fd8 (- helpers: formatting code using astyle)
 	}
-	argv[i] = NULL; /* sentinel */
+	argv[i] = NULL; // sentinel
 	//fprintf(stderr,"%s:", __func__);for(i=0;argv[i];i++)fprintf(stderr," '%s'",argv[i]);fprintf(stderr,"\n");
 
 	pid_t pid;
+<<<<<<< HEAD
 	int maxfd = getdtablesize();// sysconf(_SC_OPEN_MAX);
+=======
+	int maxfd = getdtablesize(); // sysconf(_SC_OPEN_MAX);
+	//NI
+	if (background)
+		signal(SIGCHLD, SIG_IGN);
+>>>>>>> e157348fd8 (- helpers: formatting code using astyle)
 	switch (pid = vfork())
 	{
-		case -1: /* can't vfork */
+		case -1: // can't vfork
 			perror("vfork");
 			ret = -errno;
 			break;
-		case 0: /* child process */
+		case 0: // child process
 			ret = 0;
+<<<<<<< HEAD
 			for(i = 3; i < maxfd; i++)
+=======
+
+			//NI
+			if (background)
+				signal(SIGCHLD, SIG_DFL);
+
+			for (i = 3; i < maxfd; i++)
+>>>>>>> e157348fd8 (- helpers: formatting code using astyle)
 				close(i);
 			if (setsid() == -1)
 				perror("my_system setsid");
-			if (execvp(argv[0], (char * const *)argv))
+			if (execvp(argv[0], (char *const *)argv))
 			{
 				ret = -errno;
-				if (errno != ENOENT) /* don't complain if argv[0] only does not exist */
+				if (errno != ENOENT) // don't complain if argv[0] only does not exist
 					fprintf(stderr, "ERROR: my_system \"%s\": %m\n", argv[0]);
 			}
-			_exit(ret); // terminate c h i l d proces s only
-		default: /* parent returns to calling process */
+			_exit(ret); // terminate c h i l d process only
+		default: // parent returns to calling process
 			ret = 0;
 			waitpid(pid, &childExit, 0);
 			if (WEXITSTATUS(childExit) != 0)
@@ -249,56 +289,159 @@ int my_system(int argc, const char *arg, ...)
 	return ret;
 }
 
+<<<<<<< HEAD
 FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type)
+=======
+#if 0
+//NI version
+int ni_system(std::string cmd, bool noshell, bool background)
 {
-	int     pfd[2] ={-1,-1};
-	FILE    *fp = NULL;
+	//with noshell, no special characters allowed!!!
 
-	/* only allow "r" or "w" */
-	if ((type[0] != 'r' && type[0] != 'w') || type[1] != 0) {
-		errno = EINVAL;     /* required by POSIX */
-		return(NULL);
+	int maxfd = getdtablesize();// sysconf(_SC_OPEN_MAX);
+	int fd;
+
+	for (fd = 3; fd < maxfd; fd++)
+		fcntl(fd, F_SETFD, FD_CLOEXEC);
+
+#define NI_SYSTEM_VFORK
+#ifdef NI_SYSTEM_VFORK
+
+	int ret = 0, childExit = 0;
+	pid_t pid;
+
+	std::vector<std::string> token;
+	std::vector<char *> args;
+	std::string str;
+	std::stringstream ss(cmd);
+
+	if (noshell)
+	{
+		while (ss >> str)
+		{
+			token.push_back(str);
+		}
+
+		//maybe std::transform is the better way?
+		for (std::vector<std::string>::iterator it = token.begin(); it != token.end(); ++it)
+		{
+			args.push_back((char *)it->c_str());
+		}
+		args.push_back(NULL);
+	}
+
+	if (background)
+		signal(SIGCHLD, SIG_IGN);
+
+	switch (pid = vfork())
+	{
+		case -1: /* can't vfork */
+			fprintf(stderr, "[ni_system] vfork\n");
+			return -1;
+		case 0: /* child process */
+			if (noshell)
+			{
+				/*printf("[ni_system] forked, execvp");
+				for (std::vector<char *>::iterator it = args.begin(); it != args.end(); ++it) {
+					printf(" %s",*it);
+				}
+				printf("\n");*/
+
+				ret = execvp(args[0], &args[0]);
+			}
+			else
+			{
+				//printf("[ni_system] forked, execlp \"%s\"\n", cmd.c_str());
+
+				ret = execlp("sh", "sh", "-c", cmd.c_str(), (char *)NULL);
+			}
+
+			if (ret)
+				fprintf(stderr, "[ni_system] exec return code: %d (%m)\n", ret);
+
+			_exit(ret); // terminate c h i l d proces s only
+		default: /* parent returns to calling process */
+			break;
+	}
+	if (background)
+		return (0);
+
+	//fprintf(stderr, "[ni_system] parent, waiting for child with pid %d...\n",pid);
+	waitpid(pid, &childExit, 0);
+	//fprintf(stderr, "[ni_system] parent, waitpid(pid %d) returned\n",pid);
+	/*if (WIFEXITED(childExit))
+		fprintf(stderr, "[ni_system] child returned with status %d\n",WEXITSTATUS(childExit));*/
+	return (childExit);
+#else
+	//printf("[ni_system] execute pure system()\n");
+	return system(cmd.c_str());
+#endif
+}
+#endif
+
+FILE *my_popen(pid_t &pid, const char *cmdstring, const char *type)
+>>>>>>> e157348fd8 (- helpers: formatting code using astyle)
+{
+	int pfd[2] = {-1, -1};
+	FILE *fp = NULL;
+
+	// only allow "r" or "w"
+	if ((type[0] != 'r' && type[0] != 'w') || type[1] != 0)
+	{
+		errno = EINVAL; // required by POSIX
+		return (NULL);
 	}
 
 	if (pipe(pfd) < 0)
-		return(NULL);   /* errno set by pipe() */
+		return (NULL); // errno set by pipe()
 
-	if ((pid = vfork()) < 0) {
-		return(NULL);   /* errno set by vfork() */
-	} else if (pid == 0) {                           /* child */
-		if (*type == 'r') {
+	if ((pid = vfork()) < 0)
+	{
+		return (NULL); // errno set by vfork()
+	}
+	else if (pid == 0) // child
+	{
+		if (*type == 'r')
+		{
 			close(pfd[0]);
-			if (pfd[1] != STDOUT_FILENO) {
+			if (pfd[1] != STDOUT_FILENO)
+			{
 				dup2(pfd[1], STDOUT_FILENO);
 				close(pfd[1]);
 			}
-		} else {
+		}
+		else
+		{
 			close(pfd[1]);
-			if (pfd[0] != STDIN_FILENO) {
+			if (pfd[0] != STDIN_FILENO)
+			{
 				dup2(pfd[0], STDIN_FILENO);
 				close(pfd[0]);
 			}
 		}
 		int maxfd = getdtablesize();
-		for(int i = 3; i < maxfd; i++)
+		for (int i = 3; i < maxfd; i++)
 			close(i);
 		if (setsid() == -1)
 			perror("my_popen setsid");
 		execl("/bin/sh", "sh", "-c", cmdstring, (char *)0);
 		exit(0);
-	 }
+	}
 
-	/* parent continues... */
-	if (*type == 'r') {
+	// parent continues...
+	if (*type == 'r')
+	{
 		close(pfd[1]);
 		if ((fp = fdopen(pfd[0], type)) == NULL)
-			return(NULL);
-	} else {
+			return (NULL);
+	}
+	else
+	{
 		close(pfd[0]);
 		if ((fp = fdopen(pfd[1], type)) == NULL)
-			return(NULL);
+			return (NULL);
 	}
-	return(fp);
+	return (fp);
 }
 
 int run_pty(pid_t &pid, const char *cmdstring)
@@ -306,9 +449,10 @@ int run_pty(pid_t &pid, const char *cmdstring)
 	int master = -1;
 	if ((pid = forkpty(&master, NULL, NULL, NULL)) < 0)
 		return -1;
-	else if (pid == 0) {
+	else if (pid == 0)
+	{
 		int maxfd = getdtablesize();
-		for(int i = 3; i < maxfd; i++)
+		for (int i = 3; i < maxfd; i++)
 			close(i);
 		execl("/bin/sh", "sh", "-c", cmdstring, (char *)0);
 		exit(0);
@@ -325,7 +469,8 @@ int mkdirhier(const char *pathname, mode_t mode)
 	char path[strlen(pathname) + 1];
 	strcpy(path, pathname);
 	char *p = path;
-	while ((p = strchr(p + 1, '/'))) {
+	while ((p = strchr(p + 1, '/')))
+	{
 		*p = 0;
 		res = mkdir(path, mode);
 		if (res < 0 && errno != EEXIST)
@@ -346,23 +491,23 @@ int mkdirhier(const char *pathname, mode_t mode)
 */
 void safe_strncpy(char *dest, const char *src, size_t num)
 {
-	if(!src)
+	if (!src)
 	{
 		dest[0] = '\0';
 		return;
 	}
 
 	uint32_t l, size = strlen(src);
-	if(size > num - 1)
+	if (size > num - 1)
 		l = num - 1;
 	else
-	l = size;
+		l = size;
 
 	memcpy(dest, src, l);
 	dest[l] = '\0';
 }
 
-int safe_mkdir(const char * path)
+int safe_mkdir(const char *path)
 {
 	struct statfs s;
 	size_t l = strlen(path);
@@ -381,40 +526,43 @@ int safe_mkdir(const char * path)
 	d[l++] = '.';
 	d[l] = 0;
 
-	if(statfs(d, &s) || (s.f_type == 0x72b6 /* jffs2 */))
+	if (statfs(d, &s) || (s.f_type == 0x72b6 /* jffs2 */))
 		return -1;
 	return mkdir(path, 0755);
 }
 
-/* function used to check is this dir writable, i.e. not flash, for record etc */
-int check_dir(const char * dir, bool allow_tmp)
+// function used to check is this dir writable, i.e. not flash, for record etc
+int check_dir(const char *dir, bool allow_tmp)
 {
-	/* default to return, if statfs fail */
+	// default to return, if statfs fail
 	int ret = -1;
 	struct statfs s;
-	if (::statfs(dir, &s) == 0) {
-		switch ((long unsigned int)s.f_type) {
-			case 0x858458f6L: 	// ramfs
-			case 0x1021994L: 	// tmpfs
-				if(allow_tmp)
-					ret = 0;//ok
-			case 0x72b6L:		// jffs2
+	if (::statfs(dir, &s) == 0)
+	{
+		switch ((long unsigned int)s.f_type)
+		{
+			case 0x858458f6L: // ramfs
+			case 0x1021994L: // tmpfs
+				if (allow_tmp)
+					ret = 0; //ok
+			case 0x72b6L: // jffs2
 				break;
 			default:
-				ret = 0;	// ok
+				ret = 0; // ok
 		}
-		if(ret == -1)
+		if (ret == -1)
 			printf("Wrong Filessystem Type: 0x%llx\n", (unsigned long long)s.f_type);
 	}
 	return ret;
 }
 
-bool get_fs_usage(const char * dir, uint64_t &btotal, uint64_t &bused, long *bsize/*=NULL*/)
+bool get_fs_usage(const char *dir, uint64_t &btotal, uint64_t &bused, long *bsize/*=NULL*/)
 {
 	btotal = bused = 0;
 	struct statfs s;
 
-	if (::statfs(dir, &s) == 0 && s.f_blocks) {
+	if (::statfs(dir, &s) == 0 && s.f_blocks)
+	{
 		btotal = s.f_blocks;
 		bused = s.f_blocks - s.f_bfree;
 		if (bsize != NULL)
@@ -430,23 +578,27 @@ bool get_mem_usage(unsigned long &kbtotal, unsigned long &kbfree)
 	unsigned long cached = 0, buffers = 0;
 	kbtotal = kbfree = 0;
 
-	FILE * f = fopen("/proc/meminfo", "r");
+	FILE *f = fopen("/proc/meminfo", "r");
 	if (!f)
 		return false;
 
 	char buffer[256];
-	while (fgets(buffer, 255, f)) {
-		if (!strncmp(buffer, "Mem", 3)) {
-			if (!strncmp(buffer+3, "Total", 5))
-				kbtotal = strtoul(buffer+9, NULL, 10);
-			else if (!strncmp(buffer+3, "Free", 4))
-				kbfree = strtoul(buffer+8, NULL, 10);
+	while (fgets(buffer, 255, f))
+	{
+		if (!strncmp(buffer, "Mem", 3))
+		{
+			if (!strncmp(buffer + 3, "Total", 5))
+				kbtotal = strtoul(buffer + 9, NULL, 10);
+			else if (!strncmp(buffer + 3, "Free", 4))
+				kbfree = strtoul(buffer + 8, NULL, 10);
 		}
-		else if (!strncmp(buffer, "Buffers", 7)) {
-			buffers = strtoul(buffer+8, NULL, 10);
+		else if (!strncmp(buffer, "Buffers", 7))
+		{
+			buffers = strtoul(buffer + 8, NULL, 10);
 		}
-		else if (!strncmp(buffer, "Cached", 6)) {
-			cached = strtoul(buffer+7, NULL, 10);
+		else if (!strncmp(buffer, "Cached", 6))
+		{
+			cached = strtoul(buffer + 7, NULL, 10);
 			break;
 		}
 	}
@@ -465,18 +617,21 @@ std::string find_executable(const char *name)
 		path = strdupa(tmpPath);
 	else
 		path = strdupa("/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin");
-	if (name[0] == '/') { /* full path given */
+	if (name[0] == '/') // full path given
+	{
 		if (!access(name, X_OK) && !stat(name, &s) && S_ISREG(s.st_mode))
 			return std::string(name);
 		return "";
 	}
 
 	p = path;
-	while (p) {
+	while (p)
+	{
 		n = strchr(p, ':');
 		if (n)
 			*n++ = '\0';
-		if (*p != '\0') {
+		if (*p != '\0')
+		{
 			std::string tmp = std::string(p) + "/" + std::string(name);
 			const char *f = tmp.c_str();
 			if (!access(f, X_OK) && !stat(f, &s) && S_ISREG(s.st_mode))
@@ -505,11 +660,11 @@ bool exec_initscript(std::string script, std::string command, std::string system
 {
 #if HAVE_GENERIC_HARDWARE
 	if (getuid())
-		dprintf(DEBUG_NORMAL,"[helpers] [%s - %d] WARNING: current user is not root!\n", __func__, __LINE__);
+		dprintf(DEBUG_NORMAL, "[helpers] [%s - %d] WARNING: current user is not root!\n", __func__, __LINE__);
 #endif
 
 	if (find_executable(system_command.c_str()).empty())
-		dprintf(DEBUG_NORMAL,"[helpers] [%s - %d] WARNING: %s not found at system!\n", __func__, __LINE__, system_command.c_str());
+		dprintf(DEBUG_NORMAL, "[helpers] [%s - %d] WARNING: %s not found at system!\n", __func__, __LINE__, system_command.c_str());
 
 	const std::string sysctl_bin = "systemctl";
 	bool use_systemd = !find_executable(sysctl_bin.c_str()).empty();
@@ -567,9 +722,9 @@ std::string _getBaseName(std::string &path, std::string sep)
 	size_t pos = path.find_last_of(sep);
 	if (pos == std::string::npos)
 		return path;
-	if (path.length() == pos +1)
+	if (path.length() == pos + 1)
 		return "";
-	return path.substr(pos+1);
+	return path.substr(pos + 1);
 }
 
 std::string getPathName(std::string &path)
@@ -604,12 +759,12 @@ std::string getBackupSuffix()
 	return hostName + getNowTimeStr("_%Y%m%d_%H%M");
 }
 
-std::string getNowTimeStr(const char* format)
+std::string getNowTimeStr(const char *format)
 {
 	char tmpStr[256];
 	struct timeval tv;
 	struct tm t;
-	gettimeofday(&tv, NULL);        
+	gettimeofday(&tv, NULL);
 	strftime(tmpStr, sizeof(tmpStr), format, localtime_r(&tv.tv_sec, &t));
 	return (std::string)tmpStr;
 }
@@ -640,15 +795,18 @@ std::string cutString(const std::string str, int msgFont, const int width)
 	int sw = msgFont_->getRenderWidth(ret);
 	if (sw <= width)
 		return ret;
-	else {
+	else
+	{
 		std::string z = "...";
 		int zw = msgFont_->getRenderWidth(z);
-		if (width <= 2*zw)
+		if (width <= 2 * zw)
 			return ret;
-		do {
-			ret = ret.substr(0, ret.length()-1);
+		do
+		{
+			ret = ret.substr(0, ret.length() - 1);
 			sw = msgFont_->getRenderWidth(ret);
-		} while (sw+zw > width);
+		}
+		while (sw + zw > width);
 		ret = trim(ret) + z;
 	}
 	return ret;
@@ -673,7 +831,7 @@ time_t toEpoch(std::string &date)
 	struct tm t;
 	memset(&t, 0, sizeof(t));
 	char *p = strptime(date.c_str(), "%Y-%m-%d", &t);
-	if(p)
+	if (p)
 		return mktime(&t);
 
 	return 0;
@@ -736,13 +894,13 @@ const char *cstr_replace(const char *search, const char *replace, const char *te
 
 	// count the number of replacements needed
 	ins = text;
-	for (count = 0; (tmp = (char*)strstr(ins, search)); ++count)
+	for (count = 0; (tmp = (char *)strstr(ins, search)); ++count)
 		ins = tmp + len_search;
 
 	int len_tmp = strlen(text) + (len_replace - len_search) * count + 1;
 	tmp = new char[len_tmp];
 	memset(tmp, '\0', len_tmp);
-	result = (const char*)tmp;
+	result = (const char *)tmp;
 
 	if (!result)
 		return NULL;
@@ -752,7 +910,8 @@ const char *cstr_replace(const char *search, const char *replace, const char *te
 	//    tmp points to the end of the result string
 	//    ins points to the next occurrence of search in text
 	//    text points to the remainder of text after "end of search"
-	while (count--) {
+	while (count--)
+	{
 		ins = strstr(text, search);
 		len_front = ins - text;
 		tmp = strncpy(tmp, text, len_front) + len_front;
@@ -763,11 +922,12 @@ const char *cstr_replace(const char *search, const char *replace, const char *te
 	return result;
 }
 
-std::string& htmlEntityDecode(std::string& text)
+std::string &htmlEntityDecode(std::string &text)
 {
-	struct decode_table {
-		const char* code;
-		const char* htmlCode;
+	struct decode_table
+	{
+		const char *code;
+		const char *htmlCode;
 	};
 	decode_table dt[] =
 	{
@@ -793,7 +953,7 @@ std::string& htmlEntityDecode(std::string& text)
 		text = str_replace(dt[i].htmlCode, dt[i].code, text);
 
 	return text;
-}	
+}
 
 CFileHelpers::CFileHelpers()
 {
@@ -806,14 +966,14 @@ CFileHelpers::~CFileHelpers()
 {
 }
 
-char* CFileHelpers::initFileBuf(char* buf, uint32_t size)
+char *CFileHelpers::initFileBuf(char *buf, uint32_t size)
 {
 	if (buf == NULL)
 		buf = new char[size];
 	return buf;
 }
 
-char* CFileHelpers::deleteFileBuf(char* buf)
+char *CFileHelpers::deleteFileBuf(char *buf)
 {
 	if (buf != NULL)
 		delete [] buf;
@@ -821,10 +981,10 @@ char* CFileHelpers::deleteFileBuf(char* buf)
 	return buf;
 }
 
-CFileHelpers* CFileHelpers::getInstance()
+CFileHelpers *CFileHelpers::getInstance()
 {
-	static CFileHelpers* FileHelpers = NULL;
-	if(!FileHelpers)
+	static CFileHelpers *FileHelpers = NULL;
+	if (!FileHelpers)
 		FileHelpers = new CFileHelpers();
 	return FileHelpers;
 }
@@ -837,17 +997,17 @@ void CFileHelpers::clearDebugInfo()
 	DebugInfo.line = 0;
 }
 
-void CFileHelpers::setDebugInfo(const char* msg, const char* file, const char* func, int line)
+void CFileHelpers::setDebugInfo(const char *msg, const char *file, const char *func, int line)
 {
-	DebugInfo.msg  = msg;
+	DebugInfo.msg = msg;
 	DebugInfo.file = file;
 	DebugInfo.func = func;
 	DebugInfo.line = line;
 }
 
-void CFileHelpers::readDebugInfo(helpersDebugInfo* di)
+void CFileHelpers::readDebugInfo(helpersDebugInfo *di)
 {
-	di->msg  = DebugInfo.msg;
+	di->msg = DebugInfo.msg;
 	di->file = DebugInfo.file;
 	di->func = DebugInfo.func;
 	di->line = DebugInfo.line;
@@ -862,7 +1022,8 @@ void CFileHelpers::printDebugInfo()
 bool CFileHelpers::cp(const char *Src, const char *Dst, const char *Flags/*=""*/)
 {
 	clearDebugInfo();
-	if ((Src == NULL) || (Dst == NULL)) {
+	if ((Src == NULL) || (Dst == NULL))
+	{
 		setDebugInfo("One or more parameters are NULL", __path_file__, __func__, __LINE__);
 		printDebugInfo();
 		return false;
@@ -873,7 +1034,7 @@ bool CFileHelpers::cp(const char *Src, const char *Dst, const char *Flags/*=""*/
 	if (src.find_first_of("/") != 0)
 		src = "./" + src;
 	size_t pos = src.find_last_of("/");
-	if (pos == src.length()-1)
+	if (pos == src.length() - 1)
 		src = src.substr(0, pos);
 
 	std::string dst = Dst;
@@ -881,7 +1042,7 @@ bool CFileHelpers::cp(const char *Src, const char *Dst, const char *Flags/*=""*/
 	if (dst.find_first_of("/") != 0)
 		dst = "./" + dst;
 	pos = dst.find_last_of("/");
-	if (pos == dst.length()-1)
+	if (pos == dst.length() - 1)
 		dst = dst.substr(0, pos);
 
 	bool wildcards      = (src.find("*") != std::string::npos);
@@ -890,13 +1051,16 @@ bool CFileHelpers::cp(const char *Src, const char *Dst, const char *Flags/*=""*/
 
 	static struct stat FileInfo;
 	char buf[PATH_MAX];
-	if (wildcards == false) {
-		if (!file_exists(src.c_str())) {
+	if (wildcards == false)
+	{
+		if (!file_exists(src.c_str()))
+		{
 			setDebugInfo("Source file not exist", __path_file__, __func__, __LINE__);
 			printDebugInfo();
 			return false;
 		}
-		if (lstat(src.c_str(), &FileInfo) == -1) {
+		if (lstat(src.c_str(), &FileInfo) == -1)
+		{
 			setDebugInfo("lstat error", __path_file__, __func__, __LINE__);
 			printDebugInfo();
 			return false;
@@ -907,21 +1071,26 @@ bool CFileHelpers::cp(const char *Src, const char *Dst, const char *Flags/*=""*/
 
 		static struct stat FileInfo2;
 		// is symlink
-		if (S_ISLNK(FileInfo.st_mode)) {
-			int len = readlink(src.c_str(), buf, sizeof(buf)-1);
-			if (len != -1) {
+		if (S_ISLNK(FileInfo.st_mode))
+		{
+			int len = readlink(src.c_str(), buf, sizeof(buf) - 1);
+			if (len != -1)
+			{
 				buf[len] = '\0';
-				if (!no_dereference) { /* copy */
+				if (!no_dereference) // copy
+				{
 					std::string buf_ = (std::string)buf;
 					char buf2[PATH_MAX + 1];
 					if (buf[0] != '/')
 						buf_ = getPathName(src) + "/" + buf_;
 					buf_ = (std::string)realpath(buf_.c_str(), buf2);
 					//printf("\n>>>> RealPath: %s\n \n", buf_.c_str());
-					if (file_exists(dst.c_str()) && (lstat(dst.c_str(), &FileInfo2) != -1)){
+					if (file_exists(dst.c_str()) && (lstat(dst.c_str(), &FileInfo2) != -1))
+					{
 						if (S_ISDIR(FileInfo2.st_mode))
 							copyFile(buf_.c_str(), (dst + fname).c_str());
-						else {
+						else
+						{
 							unlink(dst.c_str());
 							copyFile(buf_.c_str(), dst.c_str());
 						}
@@ -929,11 +1098,14 @@ bool CFileHelpers::cp(const char *Src, const char *Dst, const char *Flags/*=""*/
 					else
 						copyFile(buf_.c_str(), dst.c_str());
 				}
-				else { /* link */
-					if (file_exists(dst.c_str()) && (lstat(dst.c_str(), &FileInfo2) != -1)){
+				else // link
+				{
+					if (file_exists(dst.c_str()) && (lstat(dst.c_str(), &FileInfo2) != -1))
+					{
 						if (S_ISDIR(FileInfo2.st_mode))
 							symlink(buf, (dst + fname).c_str());
-						else {
+						else
+						{
 							unlink(dst.c_str());
 							symlink(buf, dst.c_str());
 						}
@@ -944,21 +1116,26 @@ bool CFileHelpers::cp(const char *Src, const char *Dst, const char *Flags/*=""*/
 			}
 		}
 		// is directory
-		else if (S_ISDIR(FileInfo.st_mode)) {
+		else if (S_ISDIR(FileInfo.st_mode))
+		{
 			if (recursive)
 				copyDir(src.c_str(), dst.c_str());
-			else {
+			else
+			{
 				setDebugInfo("'recursive flag' must be set to copy dir.", __path_file__, __func__, __LINE__);
 				printDebugInfo();
 				return false;
 			}
 		}
 		// is file
-		else if (S_ISREG(FileInfo.st_mode)) {
-			if (file_exists(dst.c_str()) && (lstat(dst.c_str(), &FileInfo2) != -1)){
+		else if (S_ISREG(FileInfo.st_mode))
+		{
+			if (file_exists(dst.c_str()) && (lstat(dst.c_str(), &FileInfo2) != -1))
+			{
 				if (S_ISDIR(FileInfo2.st_mode))
 					copyFile(src.c_str(), (dst + fname).c_str());
-				else {
+				else
+				{
 					unlink(dst.c_str());
 					copyFile(src.c_str(), dst.c_str());
 				}
@@ -966,13 +1143,15 @@ bool CFileHelpers::cp(const char *Src, const char *Dst, const char *Flags/*=""*/
 			else
 				copyFile(src.c_str(), dst.c_str());
 		}
-		else {
+		else
+		{
 			setDebugInfo("Currently unsupported st_mode.", __path_file__, __func__, __LINE__);
 			printDebugInfo();
 			return false;
 		}
 	}
-	else {
+	else
+	{
 		setDebugInfo("Wildcard feature not yet realized.", __path_file__, __func__, __LINE__);
 		printDebugInfo();
 		return false;
@@ -987,15 +1166,16 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t forceMode/*
 	set mode for Dst
 	----------------
 	when forceMode==0 (default) then
-	    when Dst exists
-	        mode = mode from Dst
-	    else
-	        mode = mode from Src
+		when Dst exists
+			mode = mode from Dst
+		else
+			mode = mode from Src
 	else
-	    mode = forceMode
+		mode = forceMode
 	*/
 	mode_t mode = forceMode & 0x0FFF;
-	if (mode == 0) {
+	if (mode == 0)
+	{
 		static struct stat FileInfo;
 		const char *f = Dst;
 		if (!file_exists(Dst))
@@ -1009,15 +1189,17 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t forceMode/*
 		return false;
 	if (file_exists(Dst))
 		unlink(Dst);
-	if ((fd2 = open(Dst, O_WRONLY | O_CREAT, mode)) < 0) {
+	if ((fd2 = open(Dst, O_WRONLY | O_CREAT, mode)) < 0)
+	{
 		close(fd1);
 		return false;
 	}
 
-	char* FileBuf = NULL;
+	char *FileBuf = NULL;
 	uint32_t block;
 	off64_t fsizeSrc64 = lseek64(fd1, 0, SEEK_END);
 	lseek64(fd1, 0, SEEK_SET);
+<<<<<<< HEAD
 	off64_t fsize64 = fsizeSrc64;
 	uint32_t FileBufSize = (fsizeSrc64 < (off_t)FileBufMaxSize) ? (uint32_t)fsizeSrc64 : FileBufMaxSize;
 	FileBuf = initFileBuf(FileBuf, FileBufSize);
@@ -1035,6 +1217,77 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t forceMode/*
 	if (fsizeSrc64 != fsizeDst64) {
 		close(fd1);
 		close(fd2);
+=======
+	if (fsizeSrc64 > 0x7FFFFFF0) // >2GB
+	{
+		uint32_t FileBufSize = FileBufMaxSize;
+		FileBuf = initFileBuf(FileBuf, FileBufSize);
+		off64_t fsize64 = fsizeSrc64;
+		block = FileBufSize;
+		//printf("#####[%s] fsizeSrc64: %lld 0x%010llX - large file\n", __FUNCTION__, fsizeSrc64, fsizeSrc64);
+		while (fsize64 > 0)
+		{
+			if (fsize64 < (off64_t)FileBufSize)
+				block = (uint32_t)fsize64;
+			read(fd1, FileBuf, block);
+			write(fd2, FileBuf, block);
+			fsize64 -= block;
+			if (!doCopyFlag)
+				break;
+		}
+		if (doCopyFlag)
+		{
+			lseek64(fd2, 0, SEEK_SET);
+			off64_t fsizeDst64 = lseek64(fd2, 0, SEEK_END);
+			if (fsizeSrc64 != fsizeDst64)
+			{
+				close(fd1);
+				close(fd2);
+				FileBuf = deleteFileBuf(FileBuf);
+				return false;
+			}
+		}
+	}
+	else // <2GB
+	{
+		off_t fsizeSrc = lseek(fd1, 0, SEEK_END);
+		uint32_t FileBufSize = (fsizeSrc < (off_t)FileBufMaxSize) ? fsizeSrc : FileBufMaxSize;
+		FileBuf = initFileBuf(FileBuf, FileBufSize);
+		lseek(fd1, 0, SEEK_SET);
+		off_t fsize = fsizeSrc;
+		block = FileBufSize;
+		//printf("#####[%s] fsizeSrc: %ld 0x%08lX - normal file\n", __FUNCTION__, fsizeSrc, fsizeSrc);
+		while (fsize > 0)
+		{
+			if (fsize < (off_t)FileBufSize)
+				block = (uint32_t)fsize;
+			read(fd1, FileBuf, block);
+			write(fd2, FileBuf, block);
+			fsize -= block;
+			if (!doCopyFlag)
+				break;
+		}
+		if (doCopyFlag)
+		{
+			lseek(fd2, 0, SEEK_SET);
+			off_t fsizeDst = lseek(fd2, 0, SEEK_END);
+			if (fsizeSrc != fsizeDst)
+			{
+				close(fd1);
+				close(fd2);
+				FileBuf = deleteFileBuf(FileBuf);
+				return false;
+			}
+		}
+	}
+	close(fd1);
+	close(fd2);
+
+	if (!doCopyFlag)
+	{
+		sync();
+		unlink(Dst);
+>>>>>>> e157348fd8 (- helpers: formatting code using astyle)
 		FileBuf = deleteFileBuf(FileBuf);
 		return false;
 	}
@@ -1054,38 +1307,46 @@ bool CFileHelpers::copyDir(const char *Src, const char *Dst, bool backupMode)
 	char dstPath[PATH_MAX];
 	char buf[PATH_MAX];
 
-	//open directory
+	// open directory
 	if ((Directory = opendir(Src)) == NULL)
 		return false;
-	if (lstat(Src, &FileInfo) == -1) {
+	if (lstat(Src, &FileInfo) == -1)
+	{
 		closedir(Directory);
 		return false;
 	}
 	// create directory
+	if (S_ISLNK(FileInfo.st_mode))
+	{
 		// is symlink
-	if (S_ISLNK(FileInfo.st_mode)) {
-		int len = readlink(Src, buf, sizeof(buf)-1);
-		if (len != -1) {
+		int len = readlink(Src, buf, sizeof(buf) - 1);
+		if (len != -1)
+		{
 			buf[len] = '\0';
 			symlink(buf, Dst);
 		}
 	}
-	else {
+	else
+	{
 		// directory
-		if (!createDir(Dst, FileInfo.st_mode & 0x0FFF)) {
+		if (!createDir(Dst, FileInfo.st_mode & 0x0FFF))
+		{
 			closedir(Directory);
 			return false;
 		}
 	}
 
 	// read directory
-	while ((CurrentFile = readdir(Directory)) != NULL) {
+	while ((CurrentFile = readdir(Directory)) != NULL)
+	{
 		// ignore '.' and '..'
-		if (strcmp(CurrentFile->d_name, ".") && strcmp(CurrentFile->d_name, "..")) {
+		if (strcmp(CurrentFile->d_name, ".") && strcmp(CurrentFile->d_name, ".."))
+		{
 			strcpy(srcPath, Src);
 			strcat(srcPath, "/");
 			strcat(srcPath, CurrentFile->d_name);
-			if (lstat(srcPath, &FileInfo) == -1) {
+			if (lstat(srcPath, &FileInfo) == -1)
+			{
 				closedir(Directory);
 				return false;
 			}
@@ -1093,26 +1354,30 @@ bool CFileHelpers::copyDir(const char *Src, const char *Dst, bool backupMode)
 			strcat(dstPath, "/");
 			strcat(dstPath, CurrentFile->d_name);
 			// is symlink
-			if (S_ISLNK(FileInfo.st_mode)) {
-				int len = readlink(srcPath, buf, sizeof(buf)-1);
-				if (len != -1) {
+			if (S_ISLNK(FileInfo.st_mode))
+			{
+				int len = readlink(srcPath, buf, sizeof(buf) - 1);
+				if (len != -1)
+				{
 					buf[len] = '\0';
 					symlink(buf, dstPath);
 				}
 			}
 			// is directory
-			else if (S_ISDIR(FileInfo.st_mode)) {
+			else if (S_ISDIR(FileInfo.st_mode))
+			{
 				copyDir(srcPath, dstPath);
 			}
 			// is file
-			else if (S_ISREG(FileInfo.st_mode)) {
+			else if (S_ISREG(FileInfo.st_mode))
+			{
 				std::string save = "";
-				(void)backupMode; /* squelch unused parameter warning */
+				(void)backupMode; // squelch unused parameter warning
 #if ENABLE_EXTUPDATE
 				if (backupMode && (CExtUpdate::getInstance()->isBlacklistEntry(srcPath)))
 					save = ".save";
 #endif
-				copyFile(srcPath, (dstPath + save).c_str()); /* mode is set by copyFile */
+				copyFile(srcPath, (dstPath + save).c_str()); // mode is set by copyFile
 			}
 		}
 	}
@@ -1120,22 +1385,28 @@ bool CFileHelpers::copyDir(const char *Src, const char *Dst, bool backupMode)
 	return true;
 }
 
-// returns:	 true - success.
-//		 false - errno is set
-bool CFileHelpers::createDir(string& Dir, mode_t mode)
+// returns:	true - success.
+//		false - errno is set
+bool CFileHelpers::createDir(string &Dir, mode_t mode)
 {
-	CFileHelpers* fh = CFileHelpers::getInstance();
+	CFileHelpers *fh = CFileHelpers::getInstance();
 	fh->clearDebugInfo();
 	int res = 0;
-	for(string::iterator iter = Dir.begin() ; iter != Dir.end();) {
-		string::iterator newIter = find(iter, Dir.end(), '/' );
-		string newPath = string( Dir.begin(), newIter );
-		if(!newPath.empty() && !file_exists(newPath.c_str())) {
-			res = mkdir( newPath.c_str(), mode);
-			if (res == -1) {
-				if (errno == EEXIST) {
+	for (string::iterator iter = Dir.begin() ; iter != Dir.end();)
+	{
+		string::iterator newIter = find(iter, Dir.end(), '/');
+		string newPath = string(Dir.begin(), newIter);
+		if (!newPath.empty() && !file_exists(newPath.c_str()))
+		{
+			res = mkdir(newPath.c_str(), mode);
+			if (res == -1)
+			{
+				if (errno == EEXIST)
+				{
 					res = 0;
-				} else {
+				}
+				else
+				{
 					// We can assume that if an error
 					// occured, following will fail too,
 					// so break here.
@@ -1143,14 +1414,14 @@ bool CFileHelpers::createDir(string& Dir, mode_t mode)
 						dprintf(DEBUG_NORMAL, "[CFileHelpers %s] creating directory %s: %s\n", __func__, newPath.c_str(), strerror(errno));
 					char buf[1024];
 					memset(buf, '\0', sizeof(buf));
-					snprintf(buf, sizeof(buf)-1, "creating directory %s: %s", newPath.c_str(), strerror(errno));
+					snprintf(buf, sizeof(buf) - 1, "creating directory %s: %s", newPath.c_str(), strerror(errno));
 					fh->setDebugInfo(buf, __path_file__, __func__, __LINE__);
 					break;
 				}
 			}
 		}
 		iter = newIter;
-		if(newIter != Dir.end())
+		if (newIter != Dir.end())
 			++ iter;
 	}
 
@@ -1159,26 +1430,29 @@ bool CFileHelpers::createDir(string& Dir, mode_t mode)
 
 bool CFileHelpers::removeDir(const char *Dir)
 {
-	CFileHelpers* fh = CFileHelpers::getInstance();
+	CFileHelpers *fh = CFileHelpers::getInstance();
 	fh->clearDebugInfo();
 	DIR *dir;
 	struct dirent *entry;
 	char path[PATH_MAX];
 
 	dir = opendir(Dir);
-	if (dir == NULL) {
+	if (dir == NULL)
+	{
 		if (errno == ENOENT)
 			return true;
 		if (!fh->getConsoleQuiet())
 			dprintf(DEBUG_NORMAL, "[CFileHelpers %s] remove directory %s: %s\n", __func__, Dir, strerror(errno));
 		char buf[1024];
 		memset(buf, '\0', sizeof(buf));
-		snprintf(buf, sizeof(buf)-1, "remove directory %s: %s", Dir, strerror(errno));
+		snprintf(buf, sizeof(buf) - 1, "remove directory %s: %s", Dir, strerror(errno));
 		fh->setDebugInfo(buf, __path_file__, __func__, __LINE__);
 		return false;
 	}
-	while ((entry = readdir(dir)) != NULL) {
-		if (strcmp(entry->d_name, ".") && strcmp(entry->d_name, "..")) {
+	while ((entry = readdir(dir)) != NULL)
+	{
+		if (strcmp(entry->d_name, ".") && strcmp(entry->d_name, ".."))
+		{
 			snprintf(path, (size_t) PATH_MAX, "%s/%s", Dir, entry->d_name);
 			if (entry->d_type == DT_DIR)
 				removeDir(path);
@@ -1201,26 +1475,28 @@ u_int64_t CFileHelpers::getDirSize(const char *dirname)
 	struct stat cur_file;
 	uint64_t total_size = 0;
 
-	//open current dir
+	// open current dir
 	sprintf(fullDirName, "%s/", dirname);
-	if((dir = opendir(fullDirName)) == NULL) {
+	if ((dir = opendir(fullDirName)) == NULL)
+	{
 		fprintf(stderr, "Couldn't open %s\n", fullDirName);
 		return 0;
 	}
 
-	//go through the directory
-	while( (dirPnt = readdir(dir)) != NULL ) {
-		if(strcmp((*dirPnt).d_name, "..") == 0 || strcmp((*dirPnt).d_name, ".") == 0)
+	// go through the directory
+	while ((dirPnt = readdir(dir)) != NULL)
+	{
+		if (strcmp((*dirPnt).d_name, "..") == 0 || strcmp((*dirPnt).d_name, ".") == 0)
 			continue;
 
-		//create current filepath
+		// create current filepath
 		sprintf(fullDirName, "%s/%s", dirname, (*dirPnt).d_name);
-		if(stat(fullDirName, &cur_file) == -1)
+		if (stat(fullDirName, &cur_file) == -1)
 			continue;
 
-		if(cur_file.st_mode & S_IFREG) //file...
+		if (cur_file.st_mode & S_IFREG) // file...
 			total_size += cur_file.st_size;
-		else if(cur_file.st_mode & S_IFDIR) //dir...
+		else if (cur_file.st_mode & S_IFDIR) // dir...
 			total_size += getDirSize(fullDirName);
 	}
 	closedir(dir);
@@ -1228,32 +1504,36 @@ u_int64_t CFileHelpers::getDirSize(const char *dirname)
 	return total_size;
 }
 
-static int hdd_open_dev(const char * fname)
+static int hdd_open_dev(const char *fname)
 {
-	FILE * fp;
-	struct mntent * mnt;
+	FILE *fp;
+	struct mntent *mnt;
 	dev_t dev;
 	struct stat st;
 	int fd = -1;
 
-	if (stat(fname, &st) != 0) {
+	if (stat(fname, &st) != 0)
+	{
 		perror(fname);
 		return fd;
 	}
 
 	dev = st.st_dev;
 	fp = setmntent("/proc/mounts", "r");
-	if (fp == NULL) {
+	if (fp == NULL)
+	{
 		perror("setmntent");
 		return fd;
 	}
 
-	while ((mnt = getmntent(fp)) != NULL) {
+	while ((mnt = getmntent(fp)) != NULL)
+	{
 		if (stat(mnt->mnt_fsname, &st) != 0)
 			continue;
-		if (S_ISBLK(st.st_mode) && st.st_rdev == dev) {
+		if (S_ISBLK(st.st_mode) && st.st_rdev == dev)
+		{
 			printf("[hdd] file [%s] -> dev [%s]\n", fname, mnt->mnt_fsname);
-			fd = open(mnt->mnt_fsname, O_RDONLY|O_NONBLOCK);
+			fd = open(mnt->mnt_fsname, O_RDONLY | O_NONBLOCK);
 			if (fd < 0)
 				perror(mnt->mnt_fsname);
 			break;
@@ -1263,15 +1543,17 @@ static int hdd_open_dev(const char * fname)
 	return fd;
 }
 
-bool hdd_get_standby(const char * fname)
+bool hdd_get_standby(const char *fname)
 {
 	bool standby = false;
 
 	int fd = hdd_open_dev(fname);
-	if (fd >= 0) {
-		unsigned char args[4] = {WIN_CHECKPOWERMODE1,0,0,0};
+	if (fd >= 0)
+	{
+		unsigned char args[4] = {WIN_CHECKPOWERMODE1, 0, 0, 0};
 		int ret = ioctl(fd, HDIO_DRIVE_CMD, args);
-		if (ret) {
+		if (ret)
+		{
 			args[0] = WIN_CHECKPOWERMODE2;
 			ret = ioctl(fd, HDIO_DRIVE_CMD, args);
 		}
@@ -1284,10 +1566,11 @@ bool hdd_get_standby(const char * fname)
 	return standby;
 }
 
-void hdd_flush(const char * fname)
+void hdd_flush(const char *fname)
 {
 	int fd = hdd_open_dev(fname);
-	if (fd >= 0) {
+	if (fd >= 0)
+	{
 		printf("[hdd] flush buffers...\n");
 		fsync(fd);
 		if (ioctl(fd, BLKFLSBUF, NULL))
@@ -1298,17 +1581,19 @@ void hdd_flush(const char * fname)
 	}
 }
 
-/* split string like PARAM1=value1 PARAM2=value2 into map */
-bool split_config_string(const std::string &str, std::map<std::string,std::string> &smap)
+// split string like PARAM1=value1 PARAM2=value2 into map
+bool split_config_string(const std::string &str, std::map<std::string, std::string> &smap)
 {
 	smap.clear();
 	std::string::size_type start = 0;
 	std::string::size_type end = 0;
-	while ((end = str.find(" ", start)) != std::string::npos) {
+	while ((end = str.find(" ", start)) != std::string::npos)
+	{
 		std::string param = str.substr(start, end - start);
 		std::string::size_type i = param.find("=");
-		if (i != std::string::npos) {
-			smap[param.substr(0,i).c_str()] = param.substr(i+1).c_str();
+		if (i != std::string::npos)
+		{
+			smap[param.substr(0, i).c_str()] = param.substr(i + 1).c_str();
 		}
 		start = end + 1;
 	}
@@ -1316,7 +1601,7 @@ bool split_config_string(const std::string &str, std::map<std::string,std::strin
 }
 
 #if 0
-/* align for hw blit */
+// align for hw blit
 uint32_t GetWidth4FB_HW_ACC(const uint32_t _x, const uint32_t _w, const bool max)
 {
 	uint32_t ret = _w;
@@ -1324,8 +1609,8 @@ uint32_t GetWidth4FB_HW_ACC(const uint32_t _x, const uint32_t _w, const bool max
 	if (xRes == 0)
 		xRes = CFrameBuffer::getInstance()->getScreenWidth(true);
 	if ((_x + ret) >= xRes)
-		ret = xRes-_x-1;
-	if (ret%4 == 0)
+		ret = xRes - _x - 1;
+	if (ret % 4 == 0)
 		return ret;
 
 	int add = (max) ? 3 : 0;
@@ -1410,36 +1695,43 @@ std::string itoa(int value, int base)
 	std::string buf;
 
 	// check that the base if valid
-	if (base < 2 || base > 16) return buf;
+	if (base < 2 || base > 16)
+		return buf;
 
 	enum { kMaxDigits = 35 };
-	buf.reserve( kMaxDigits ); // Pre-allocate enough space.
+	buf.reserve(kMaxDigits); // Pre-allocate enough space.
 
 	int quotient = value;
 
 	// Translating number to string with base:
-	do {
-		buf += "0123456789abcdef"[ std::abs( quotient % base ) ];
+	do
+	{
+		buf += "0123456789abcdef"[ std::abs(quotient % base) ];
 		quotient /= base;
-	} while ( quotient );
+	}
+	while (quotient);
 
 	// Append the negative sign
-	if ( value < 0) buf += '-';
+	if (value < 0)
+		buf += '-';
 
-	std::reverse( buf.begin(), buf.end() );
+	std::reverse(buf.begin(), buf.end());
 	return buf;
 }
 
 std::string getJFFS2MountPoint(int mtdPos)
 {
-	FILE* fd = fopen("/proc/mounts", "r");
-	if (!fd) return "";
+	FILE *fd = fopen("/proc/mounts", "r");
+	if (!fd)
+		return "";
 	int iBlock;
 	char lineRead[1024], sMount[512], sFs[512];
 	memset(lineRead, '\0', sizeof(lineRead));
-	while (fgets(lineRead, sizeof(lineRead)-1, fd)) {
+	while (fgets(lineRead, sizeof(lineRead) - 1, fd))
+	{
 		sscanf(lineRead, "/dev/mtdblock%d %511s %511s", &iBlock, sMount, sFs);
-		if ((iBlock == mtdPos) && (strstr(sMount, "/") != NULL) && (strstr(sFs, "jffs2") != NULL)) {
+		if ((iBlock == mtdPos) && (strstr(sMount, "/") != NULL) && (strstr(sFs, "jffs2") != NULL))
+		{
 			fclose(fd);
 			return sMount;
 		}
@@ -1449,7 +1741,7 @@ std::string getJFFS2MountPoint(int mtdPos)
 	return "";
 }
 
-std::string Lang2ISO639_1(std::string& lang)
+std::string Lang2ISO639_1(std::string &lang)
 {
 	std::string ret = "";
 	if ((lang == "deutsch") || (lang == "bayrisch") || (lang == "ch-baslerdeutsch") || (lang == "ch-berndeutsch"))
@@ -1509,20 +1801,22 @@ int getpidof(const char *process)
 
 			sprintf(procpath, "/proc/%s/status", entry->d_name);
 
-			if (! (file = fopen(procpath, "r")) ) {
+			if (!(file = fopen(procpath, "r")))
+			{
 				continue;
 			}
 
-			fscanf(file,"%*s %s", procname);
+			fscanf(file, "%*s %s", procname);
 			fclose(file);
 
 			// only 15 char available
-			if (strncmp(procname, process, 15) == 0) {
+			if (strncmp(procname, process, 15) == 0)
+			{
 				return atoi(entry->d_name);
 			}
 		}
 	}
-	closedir (dp);
+	closedir(dp);
 	return 0;
 }
 
@@ -1536,7 +1830,7 @@ std::string filehash(const char *file)
 	unsigned char hash[MD5_DIGEST_LENGTH];
 	void *buff;
 	std::ostringstream os;
- 
+
 	memset(hash, 0, MD5_DIGEST_LENGTH);
 
 	fd = open(file, O_RDONLY | O_NONBLOCK);
@@ -1551,7 +1845,8 @@ std::string filehash(const char *file)
 		munmap(buff, size);
 
 		// Print the MD5 sum as hex-digits.
-		for(i = 0; i < MD5_DIGEST_LENGTH; ++i) {
+		for (i = 0; i < MD5_DIGEST_LENGTH; ++i)
+		{
 			os.width(2);
 			os.fill('0');
 			os << std::hex << static_cast<int>(hash[i]);
@@ -1564,9 +1859,10 @@ std::string filehash(const char *file)
 	unsigned char hash[MD5_DIGEST_LENGTH];
 	std::ostringstream os;
 
-	md5_file(file, 1, (unsigned char*) hash);
+	md5_file(file, 1, (unsigned char *) hash);
 	// Print the MD5 sum as hex-digits.
-	for(i = 0; i < MD5_DIGEST_LENGTH; ++i) {
+	for (i = 0; i < MD5_DIGEST_LENGTH; ++i)
+	{
 		os.width(2);
 		os.fill('0');
 		os << std::hex << static_cast<int>(hash[i]);
@@ -1576,12 +1872,12 @@ std::string filehash(const char *file)
 
 std::string get_path(const char *path)
 {
-	if(path[0] == '/' && strstr(path,"/var") == 0)
+	if (path[0] == '/' && strstr(path, "/var") == 0)
 	{
 		std::string varc = "/var";
 		varc += path;
 
-		if(file_exists(varc.c_str()))
+		if (file_exists(varc.c_str()))
 			return varc;
 	}
 
@@ -1591,7 +1887,7 @@ std::string get_path(const char *path)
 std::string check_var(const char *file)
 {
 	std::string var = "/var";
-	if(file[0] == '/' && strstr(file, var.c_str()) == 0)
+	if (file[0] == '/' && strstr(file, var.c_str()) == 0)
 	{
 		std::string varfile = var + file;
 
@@ -1605,8 +1901,8 @@ std::string check_var(const char *file)
 string readLink(string lnk)
 {
 	char buf[PATH_MAX];
-	memset(buf, 0, sizeof(buf)-1);
-	if (readlink(lnk.c_str(), buf, sizeof(buf)-1) != -1)
+	memset(buf, 0, sizeof(buf) - 1);
+	if (readlink(lnk.c_str(), buf, sizeof(buf) - 1) != -1)
 		return (string)buf;
 
 	return "";
@@ -1616,16 +1912,19 @@ string readFile(string file)
 {
 	string ret_s;
 	ifstream tmpData(file.c_str(), ifstream::binary);
-	if (tmpData.is_open()) {
+	if (tmpData.is_open())
+	{
 		tmpData.seekg(0, tmpData.end);
 		int length = tmpData.tellg();
-		if (length > 0xffff) { /* longer than 64k? better read in chunks! */
+		if (length > 0xffff) // longer than 64k? better read in chunks!
+		{
 			cerr << __func__ << ": file " << file << " too big (" << length << " bytes)" << endl;
 			return "";
 		}
 		tmpData.seekg(0, tmpData.beg);
-		char* buffer = new char[length+1];
-		if (! buffer) {
+		char *buffer = new char[length + 1];
+		if (! buffer)
+		{
 			cerr << __func__ << ": allocating " << (length + 1) << " bytes for buffer failed" << endl;
 			return "";
 		}
@@ -1635,7 +1934,8 @@ string readFile(string file)
 		ret_s = (string)buffer;
 		delete [] buffer;
 	}
-	else {
+	else
+	{
 		cerr << "Error read " << file << endl;
 		return "";
 	}
@@ -1643,7 +1943,7 @@ string readFile(string file)
 	return ret_s;
 }
 
-bool parseJsonFromFile(string& jFile, Json::Value *root, string *errMsg)
+bool parseJsonFromFile(string &jFile, Json::Value *root, string *errMsg)
 {
 	string jData = readFile(jFile);
 	bool ret = parseJsonFromString(jData, root, errMsg);
@@ -1651,15 +1951,16 @@ bool parseJsonFromFile(string& jFile, Json::Value *root, string *errMsg)
 	return ret;
 }
 
-bool parseJsonFromString(string& jData, Json::Value *root, string *errMsg)
+bool parseJsonFromString(string &jData, Json::Value *root, string *errMsg)
 {
 	Json::CharReaderBuilder builder;
-	Json::CharReader* reader(builder.newCharReader());
+	Json::CharReader *reader(builder.newCharReader());
 	JSONCPP_STRING errs = "";
-	const char* jData_c = jData.c_str();
+	const char *jData_c = jData.c_str();
 
 	bool ret = reader->parse(jData_c, jData_c + strlen(jData_c), root, &errs);
-	if (!ret || (!errs.empty())) {
+	if (!ret || (!errs.empty()))
+	{
 		ret = false;
 		if (errMsg != NULL)
 			*errMsg = errs;
@@ -1729,11 +2030,11 @@ std::string randomString(unsigned int length)
 {
 	std::string random = "";
 	const char alphanum[] =
-	    "0123456789"
-	    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	    "abcdefghijklmnopqrstuvwxyz";
+		"0123456789"
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		"abcdefghijklmnopqrstuvwxyz";
 	unsigned int i;
-	for(i = 0; i < length; ++i)
+	for (i = 0; i < length; ++i)
 		random += alphanum[rand() % (sizeof(alphanum) - 1)];
 	return random;
 }
@@ -1759,11 +2060,11 @@ std::string downloadUrlToLogo(std::string url, std::string directory, t_channel_
 {
 
 	if (channel_id == 0)
-		return downloadUrlToRandomFile(url,directory);
+		return downloadUrlToRandomFile(url, directory);
 
 	if (strstr(url.c_str(), "://"))
 	{
-		//get channel id as string
+		// get channel id as string
 		char strChnId[16];
 		snprintf(strChnId, 16, "%llx", channel_id & 0xFFFFFFFFFFFFULL);
 		strChnId[15] = '\0';
@@ -1780,7 +2081,7 @@ std::string downloadUrlToLogo(std::string url, std::string directory, t_channel_
 // curl
 static void *myrealloc(void *ptr, size_t size)
 {
-	if(ptr)
+	if (ptr)
 		return realloc(ptr, size);
 	else
 		return malloc(size);
@@ -1803,17 +2104,24 @@ size_t WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
 
 size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data)
 {
+<<<<<<< HEAD
         std::string* pStr = (std::string*) data;
         pStr->append((char*) ptr, nmemb);
 
         return size*nmemb;
+=======
+	std::string *pStr = (std::string *) data;
+	pStr->append((char *) ptr, nmemb);
+
+	return size * nmemb;
+>>>>>>> e157348fd8 (- helpers: formatting code using astyle)
 }
 
-bool getUrl(std::string& url, std::string& answer, std::string userAgent, unsigned int timeout)
+bool getUrl(std::string &url, std::string &answer, std::string userAgent, unsigned int timeout)
 {
 	dprintf(DEBUG_NORMAL, "getUrl: url: %s\n", url.c_str());
 
-	CURL * curl_handle = curl_easy_init();
+	CURL *curl_handle = curl_easy_init();
 
 	curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, &CurlWriteToString);
@@ -1824,9 +2132,15 @@ bool getUrl(std::string& url, std::string& answer, std::string userAgent, unsign
 	curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, false);
 	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, userAgent.c_str());
 
+<<<<<<< HEAD
 	if (!g_settings.softupdate_proxyserver.empty()) {
+=======
+	if (!g_settings.softupdate_proxyserver.empty())
+	{
+>>>>>>> e157348fd8 (- helpers: formatting code using astyle)
 		curl_easy_setopt(curl_handle, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
-		if (!g_settings.softupdate_proxyusername.empty()) {
+		if (!g_settings.softupdate_proxyusername.empty())
+		{
 			std::string tmp = g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword;
 			curl_easy_setopt(curl_handle, CURLOPT_PROXYUSERPWD, tmp.c_str());
 		}
@@ -1850,11 +2164,15 @@ bool getUrl(std::string& url, std::string& answer, std::string userAgent, unsign
 
 bool downloadUrl(std::string url, std::string file, std::string userAgent, unsigned int timeout)
 {
-	dprintf(DEBUG_INFO ,"[%s - %d] url: %s\tfile: %s\tuserAgent: %s\n", __func__, __LINE__, url.c_str(), file.c_str(), userAgent.c_str());
+	dprintf(DEBUG_INFO, "[%s - %d] url: %s\tfile: %s\tuserAgent: %s\n", __func__, __LINE__, url.c_str(), file.c_str(), userAgent.c_str());
 
-	CURL * curl_handle = curl_easy_init();
+	CURL *curl_handle = curl_easy_init();
 
+<<<<<<< HEAD
 	FILE * fp = fopen(file.c_str(), "wb");
+=======
+	FILE *fp = fopen(file.c_str(), "wb");
+>>>>>>> e157348fd8 (- helpers: formatting code using astyle)
 	if (fp == NULL)
 	{
 		perror(file.c_str());
@@ -1869,9 +2187,11 @@ bool downloadUrl(std::string url, std::string file, std::string userAgent, unsig
 	curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, false);
 	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, userAgent.c_str());
 
-	if (!g_settings.softupdate_proxyserver.empty()) {
+	if (!g_settings.softupdate_proxyserver.empty())
+	{
 		curl_easy_setopt(curl_handle, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
-		if (!g_settings.softupdate_proxyusername.empty()) {
+		if (!g_settings.softupdate_proxyusername.empty())
+		{
 			std::string tmp = g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword;
 			curl_easy_setopt(curl_handle, CURLOPT_PROXYUSERPWD, tmp.c_str());
 		}
@@ -1903,9 +2223,9 @@ bool downloadUrl(std::string url, std::string file, std::string userAgent, unsig
 
 std::string decodeUrl(std::string url)
 {
-	CURL * curl_handle = curl_easy_init();
+	CURL *curl_handle = curl_easy_init();
 
-	char * str = curl_easy_unescape(curl_handle, url.c_str(), 0, NULL);
+	char *str = curl_easy_unescape(curl_handle, url.c_str(), 0, NULL);
 
 	curl_easy_cleanup(curl_handle);
 
@@ -1917,9 +2237,9 @@ std::string decodeUrl(std::string url)
 
 std::string encodeUrl(std::string txt)
 {
-	CURL * curl_handle = curl_easy_init();
+	CURL *curl_handle = curl_easy_init();
 
-	char * str = curl_easy_escape(curl_handle, txt.c_str(), txt.length());
+	char *str = curl_easy_escape(curl_handle, txt.c_str(), txt.length());
 
 	curl_easy_cleanup(curl_handle);
 
@@ -1932,7 +2252,7 @@ std::string encodeUrl(std::string txt)
 
 bool isDigitWord(std::string str)
 {
-	for (size_t i=0; i < str.size(); i++)
+	for (size_t i = 0; i < str.size(); i++)
 		if (!isdigit(str[i]))
 			return false;
 
@@ -1957,7 +2277,7 @@ int getBoxMode()
 	if (f)
 	{
 		char buf[256] = "";
-		while(fgets(buf, sizeof(buf), f) != NULL)
+		while (fgets(buf, sizeof(buf), f) != NULL)
 		{
 			if (strstr(buf, "boxmode=12") != NULL)
 				boxmode = 12;
@@ -1981,7 +2301,7 @@ int getActivePartition()
 	if (f)
 	{
 		char buf[256] = "";
-		while(fgets(buf, sizeof(buf), f) != NULL)
+		while (fgets(buf, sizeof(buf), f) != NULL)
 		{
 #if BOXMODEL_VUUNO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUSOLO4K || BOXMODEL_VUULTIMO4K
 			if (strstr(buf, "mmcblk0p5") != NULL)
@@ -2097,12 +2417,12 @@ int getActivePartition()
 
 // Why different name conventions ?
 // i put them all together here, and keep the simplest
-//name = str_replace(" ", "_", name);
-//name = str_replace("ä", "a", name);
-//name = str_replace("ö", "o", name);
-//name = str_replace("ü", "u", name);
-//name = str_replace("+", "___plus___", name);
-//name = str_replace("&", "___and___", name);
+//	name = str_replace(" ", "_", name);
+//	name = str_replace("ä", "a", name);
+//	name = str_replace("ö", "o", name);
+//	name = str_replace("ü", "u", name);
+//	name = str_replace("+", "___plus___", name);
+//	name = str_replace("&", "___and___", name);
 std::string GetSpecialName(std::string name)
 {
 	std::transform(name.begin(), name.end(), name.begin(), ::tolower);
