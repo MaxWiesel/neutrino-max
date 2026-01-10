@@ -205,6 +205,7 @@ void CFfmpegDec::DeInit(void)
 		av_free(c);
 #else
 		avcodec_free_context(&c);
+#endif
 		c = NULL;
 	}
 	if (avioc)

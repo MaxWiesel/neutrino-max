@@ -581,7 +581,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 
 	// Weather below InfoIcons
 	if (g_settings.weather_enabled && g_settings.infobar_weather)
-		weather->show(BoxStartX, CInfoIcons::getInstance()->getHeightRel() + OFFSET_INNER_SMALL);
+		weather->show(BoxStartX, g_settings.screen_StartY + OFFSET_INNER_MID);
 
 	if (showButtonBar) {
 		infoViewerBB->paintshowButtonBar(noTimer);
@@ -778,7 +778,6 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	paintBackground(COL_INFOBAR_PLUS_0);
 
 	bool show_dot = true;
-	//NI
 	if (timeset)
 	{
 		if (g_settings.infobar_analogclock)
@@ -791,7 +790,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 
 	// Weather below InfoIcons
 	if (g_settings.weather_enabled && g_settings.infobar_weather)
-		weather->show(BoxStartX, CInfoIcons::getInstance()->getHeightRel() + OFFSET_INNER_SMALL);
+		weather->show(BoxStartX, g_settings.screen_StartY + OFFSET_INNER_MID);
 
 	if (!zap_mode)
 		infoViewerBB->paintshowButtonBar();

@@ -1087,7 +1087,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.weather_api_version = WEATHER_API_VERSION;
 #if ENABLE_WEATHER_KEY_MANAGE
 	g_settings.weather_api_key = configfile.getString("weather_api_key", g_settings.weather_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : g_settings.weather_api_key);
-	g_settings.weather_api_version = configfile.getString("weather_api_version", g_settings.weather_api_version.empty() ? "2.5" : g_settings.weather_api_version);
+	g_settings.weather_api_version = configfile.getString("weather_api_version", g_settings.weather_api_version.empty() ? "3.0" : g_settings.weather_api_version);
 #endif
 	g_settings.weather_enabled = configfile.getInt32("weather_enabled", 1);
 	g_settings.weather_enabled = g_settings.weather_enabled && CApiKey::check_weather_api_key();
@@ -3002,8 +3002,8 @@ TIMER_START();
 	InitSectiondClient();
 
 	/* wait until timerd is ready... */
-	int64_t timerd_wait = time_monotonic_ms();
-	while (timerd_signal >= 0) {
+	time_t timerd_wait = time_monotonic_ms();
+	while (!timer_wakeup) {
 		usleep(100);
 	}
 
@@ -3047,7 +3047,8 @@ TIMER_START();
 		frameBuffer->stopFrame();
 	}
 
-	if(loadSettingsErg) {
+	if (loadSettingsErg)
+	{
 		hintBox->hide();
 		dprintf(DEBUG_INFO, "config file or options missing\n");
 		ShowHint(LOCALE_MESSAGEBOX_INFO, loadSettingsErg ==  1 ? g_Locale->getText(LOCALE_SETTINGS_NOCONFFILE)
